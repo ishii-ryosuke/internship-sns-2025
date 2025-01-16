@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <link href="../../output.css" rel="stylesheet">
+    <link href="../asset/output.css" rel="stylesheet">
+    <script type="module" src="../script/signUp.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white shadow-lg rounded-lg max-w-md w-full p-10 pt-20 pb-28 space-y-7 relative">
@@ -76,8 +77,8 @@
             <!-- Create Account Button -->
             <button 
                 type="submit" 
-                class="w-full py-3 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600"
-            >
+                id="createAccount"
+                class="w-full py-3 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600">
                 Create Account
             </button>
         </form>
@@ -91,9 +92,9 @@
 
         <!-- Google Sign Up Button -->
         <button 
-            class="w-full flex items-center justify-center py-3 border border-gray-300 rounded-md hover:bg-gray-100"
-        >
-            <img src="../../src/asset/google-icon.png" alt="Google Icon" class="w-5 h-5 mr-3">
+            id="googleSignUp"
+            class="w-full flex items-center justify-center py-3 border border-gray-300 rounded-md hover:bg-gray-100">
+            <img src="../asset/google-icon.png" alt="Google Icon" class="w-5 h-5 mr-3">
             <span class="text-gray-700 font-medium">Sign Up With Google</span>
         </button>
     </div>
