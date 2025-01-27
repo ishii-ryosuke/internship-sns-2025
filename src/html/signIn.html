@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My App</title>
-    <link href="../../output.css" rel="stylesheet">
+    <link href="../asset/output.css" rel="stylesheet">
+    <script type="module" src="../script/signIn.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white shadow-lg rounded-lg max-w-md p-10 space-y-7 pt-20 pb-24 relative">
@@ -68,7 +69,8 @@
 
             <!-- Sign In Button -->
             <button 
-                type="submit" 
+                type="submit"
+                id="signIn"
                 class="w-full py-3 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600"
             >
                 Sign In
@@ -84,15 +86,16 @@
 
         <!-- Google Sign In Button -->
         <button 
+            id="googleSignIn"
             class="w-full flex items-center justify-center py-3 border border-gray-300 rounded-md hover:bg-gray-100"
         >
-            <img src="../../src/asset/google-icon.png" alt="Google Icon" class="w-5 h-5 mr-2">
+            <img src="../asset/google-icon.png" alt="Google Icon" class="w-5 h-5 mr-2">
             <span class="text-gray-700 font-medium">Sign In With Google</span>
         </button>
 
         <!-- Footer Section -->
         <p class="text-center text-sm text-gray-500 mb-12">
-            Not a member yet? <a href="#" class="text-blue-500 hover:underline">Sign Up</a>
+            Not a member yet? <a href="./signUp.html" class="text-blue-500 hover:underline">Sign Up</a>
         </p>
     </div>
 </body>
