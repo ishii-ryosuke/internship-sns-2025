@@ -66,6 +66,7 @@ firebase deploy
 ├── src/                        # アプリのソースコード
 │   ├── html/                   # HTML ファイル
 │   ├── script/                 # JavaScript ファイル
+│   ├── auth/                   # 認証（ログイン、ログアウト）関連のファイル
 │   ├── asset/                  # 画像や CSS
 │   └── firebase-wrapper/       # Firebase 設定とラッパー
 └── tailwind.config.js          # Tailwind CSS 設定

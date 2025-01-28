@@ -4,6 +4,7 @@ const auth = new AuthWrapper();
 
 /**
  * メールアドレスとパスワードでサインインする
+ * @param {Event} event イベントオブジェクト
  */
 async function signIn(event) {
   // フォームのデフォルト送信動作をキャンセル
@@ -21,8 +22,8 @@ async function signIn(event) {
 
   try {
     // サインイン処理
-    const user = await auth.login(email, password);
-    console.log("User signed in:", user);
+    await auth.login(email, password);
+    // ホーム画面に遷移する
     moveToHome();
   } catch (error) {
     console.error("Error during sign-in:", error);
@@ -38,6 +39,7 @@ async function signIn(event) {
 
 /**
  * Google アカウントでサインインする
+ * @param {Event} event イベントオブジェクト
  */
 async function signInWithGoogle(event) {
   // フォームのデフォルト送信動作をキャンセル
@@ -45,8 +47,8 @@ async function signInWithGoogle(event) {
 
   try {
     // Google サインイン処理
-    const user = await auth.loginWithGoogle();
-    console.log("User signed in with Google:", user);
+    await auth.loginWithGoogle();
+    // ホーム画面に遷移する
     moveToHome();
   } catch (error) {
     console.error("Error during Google sign-in:", error);

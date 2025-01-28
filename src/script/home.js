@@ -1,61 +1,35 @@
-const openModalButton = document.getElementById("openModal");
-const cancelModalButton = document.getElementById("cancelModal");
-const postModalButton = document.getElementById("postModal");
-const modalPanel = document.getElementById("modalPanel");
-const modalBackdrop = document.getElementById("modalBackdrop");
-const titleInput = document.getElementById("title");
-const bodyInput = document.getElementById("body");
+import { createPostElement } from "./postUtils.js";
+import FirestoreWrapper from "../firebase-wrapper/firestore.js";
+
+const firestore = new FirestoreWrapper();
+const postsContainer = document.querySelector(".home-posts-container");
 
 /**
- * モーダルを表示する
+ * Firestore から投稿データを取得して表示する関数
  */
-function showModal() {
-  modalBackdrop.classList.remove("hidden");
-  modalPanel.parentElement.classList.remove("hidden");
-  modalPanel.classList.remove("hidden");
-}
-
-/**
- * モーダルを非表示にする
- */
-function hideModal() {
-  modalBackdrop.classList.add("hidden");
-  modalPanel.parentElement.classList.add("hidden");
-  modalPanel.classList.add("hidden");
-  clearModalFields();
-}
-
-/**
- * モーダルの入力内容をクリアする
- */
-function clearModalFields() {
-  titleInput.value = "";
-  bodyInput.value = "";
-}
-
-/**
- * モーダルを開く
- */
-function postModal() {
-  const title = titleInput.value;
-  const body = bodyInput.value;
-
-  if (!title || !body) {
-    alert("タイトルと本文を入力してください");
+export async function loadPosts() {
+  if (!postsContainer) {
+    console.warn("home-posts-container が見つからないため、投稿表示をスキップします。");
     return;
   }
 
-  // 投稿内容を送信する
-  console.log("Title:", title);
-  console.log("Body:", body);
+  try {
+    const posts = await firestore.getDocuments("posts");
+    posts.sort((a, b) => b.updated.toMillis() - a.updated.toMillis());
 
-  // モーダルを非表示にする
-  hideModal();
+    postsContainer.innerHTML = "";
+
+    for (const post of posts) {
+      const postElement = await createPostElement(post);
+      if (postElement) postsContainer.appendChild(postElement);
+    }
+  } catch (error) {
+    console.error("投稿一覧の取得中にエラーが発生しました:", error.message);
+  }
 }
 
-// 「Post」ボタンがクリックされたときの処理を登録
-openModalButton.addEventListener("click", showModal);
-// モーダルの「Cancel」ボタンがクリックされたときの処理を登録
-cancelModalButton.addEventListener("click", hideModal);
-// モーダルの「Post」ボタンがクリックされたときの処理を登録
-postModalButton.addEventListener("click", postModal);
+// 初期化関数
+document.addEventListener("DOMContentLoaded", async () => {
+  const currentPage = document.body.getAttribute("data-page");
+  if (currentPage === "home") await loadPosts();
+});
