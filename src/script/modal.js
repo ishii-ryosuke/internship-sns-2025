@@ -7,9 +7,9 @@ const auth = new AuthWrapper();
 const firestore = new FirestoreWrapper();
 
 /**
- * モーダル HTML を動的に挿入する関数
+ * 投稿用のモーダル HTML を動的に挿入する関数
  */
-export async function loadModalHTML() {
+export async function loadPostModalHTML() {
   const modalContainer = document.createElement("div");
   modalContainer.innerHTML = `
     <div id="modalBackdrop" class="hidden fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
@@ -65,7 +65,7 @@ export async function loadModalHTML() {
  * モーダルを初期化する関数
  */
 export async function initializeModal() {
-  await loadModalHTML();
+  await loadPostModalHTML();
 
   // ログインユーザーの情報をモーダルに表示
   auth.onAuthStateChanged(async (user) => {
