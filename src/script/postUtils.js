@@ -1,4 +1,5 @@
 import FirestoreWrapper from "../firebase-wrapper/firestore.js";
+import {showEditModal, edit} from "./modal.js"
 
 const firestore = new FirestoreWrapper();
 
@@ -6,8 +7,11 @@ const firestore = new FirestoreWrapper();
  * 投稿を編集する関数
  * @param {string} postId - 編集する投稿の ID
  */
-export function editPost(postId) {
-  alert(`投稿の編集機能は未実装です。Post ID: ${postId}`);
+export function editPost(id, title, body) {
+  showEditModal(title, body);
+
+  const editModalButton = document.getElementById("editModal");
+  if (editModalButton) editModalButton.addEventListener("click", () => edit(id));
 }
 
 /**
@@ -74,7 +78,7 @@ export async function createPostElement(post) {
     const deleteButton = postDiv.querySelector(".delete-post-btn");
 
     if (editButton) {
-      editButton.addEventListener("click", () => editPost(post.id));
+      editButton.addEventListener("click", () => editPost(post.id, post.title, formattedBody));
     }
 
     if (deleteButton) {

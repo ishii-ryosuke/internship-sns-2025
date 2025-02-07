@@ -60,12 +60,64 @@ export async function loadPostModalHTML() {
   `;
   document.body.appendChild(modalContainer);
 }
+export async function loadEditModalHTML() {
+  const modalContainer = document.createElement("div");
+  modalContainer.innerHTML = `
+    <div id="editModalBackdrop" class="hidden fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
+    <div id="editModalPanel" class="hidden fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
+          <div class="bg-white px-6 pb-6 pt-6 sm:p-8">
+            <div class="sm:flex sm:flex-col sm:items-start space-y-6">
+              <div class="flex items-center space-x-4">
+                <img id="modalUserIcon" src="../asset/avatar.png" alt="User Avatar" class="w-12 h-12 rounded-full">
+                <div>
+                  <h4 id="modalUserName" class="text-lg font-medium text-gray-700">User Name</h4>
+                  <span id="modalUserEmail" class="text-sm text-gray-500">user@example.com</span>
+                </div>
+              </div>
+              <div class="w-full">
+                <label for="title" class="block text-base font-medium text-gray-900">Title</label>
+                <div class="mt-2">
+                  <input
+                    type="text"
+                    name="title"
+                    id="editTitle"
+                    class="block w-full rounded-md bg-white px-4 py-2 text-base text-gray-900 border border-gray-300 placeholder-gray-400 focus:border-indigo-500"
+                  >
+                </div>
+              </div>
+              <div class="w-full">
+                <label for="body" class="block text-base font-medium text-gray-900">Body</label>
+                <div class="mt-2">
+                  <textarea name="body" id="editBody" rows="5"
+                    class="block w-full rounded-md bg-white px-4 py-2 text-base text-gray-900 border border-gray-300 placeholder-gray-400 focus:border-indigo-500"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
+            <button type="button" id="editModal" class="inline-flex w-full justify-center rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 sm:ml-3 sm:w-auto">
+              Edit
+            </button>
+            <button type="button" id="cancelEditModal" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modalContainer);
+}
 
 /**
  * モーダルを初期化する関数
  */
 export async function initializeModal() {
   await loadPostModalHTML();
+  await loadEditModalHTML();
 
   // ログインユーザーの情報をモーダルに表示
   auth.onAuthStateChanged(async (user) => {
@@ -83,9 +135,11 @@ export async function initializeModal() {
   // モーダルのキャンセルボタンと投稿ボタンにイベントを追加
   const cancelModalButton = document.getElementById("cancelModal");
   const postModalButton = document.getElementById("postModal");
+  const cancelEditModalButton = document.getElementById("cancelEditModal");
 
   if (cancelModalButton) cancelModalButton.addEventListener("click", hideModal);
   if (postModalButton) postModalButton.addEventListener("click", post);
+  if (cancelEditModalButton) cancelEditModalButton.addEventListener("click", hideEditModal);
 }
 
 /**
@@ -115,6 +169,25 @@ export function showModal() {
 }
 
 /**
+ * モーダルを表示する関数
+ */
+export function showEditModal(title, body) {
+  const modalBackdrop = document.getElementById("editModalBackdrop");
+  const modalPanel = document.getElementById("editModalPanel");
+
+  const titleInput = document.getElementById("editTitle");
+  const bodyInput = document.getElementById("editBody");
+
+  if (titleInput) titleInput.value = title;
+  if (bodyInput) bodyInput.value = body;
+
+  if (modalBackdrop && modalPanel) {
+    modalBackdrop.classList.remove("hidden");
+    modalPanel.classList.remove("hidden");
+  }
+}
+
+/**
  * モーダルを非表示にする関数
  */
 export function hideModal() {
@@ -130,11 +203,37 @@ export function hideModal() {
 }
 
 /**
+ * モーダルを非表示にする関数
+ */
+export function hideEditModal() {
+  const modalBackdrop = document.getElementById("editModalBackdrop");
+  const modalPanel = document.getElementById("editModalPanel");
+
+  if (modalBackdrop && modalPanel) {
+    modalBackdrop.classList.add("hidden");
+    modalPanel.classList.add("hidden");
+  }
+
+  clearModalFields();
+}
+
+/**
  * モーダルの入力内容をクリアする関数
  */
 export function clearModalFields() {
   const titleInput = document.getElementById("title");
   const bodyInput = document.getElementById("body");
+
+  if (titleInput) titleInput.value = "";
+  if (bodyInput) bodyInput.value = "";
+}
+
+/**
+ * モーダルの入力内容をクリアする関数
+ */
+export function clearEditModalFields() {
+  const titleInput = document.getElementById("editTitle");
+  const bodyInput = document.getElementById("editBody");
 
   if (titleInput) titleInput.value = "";
   if (bodyInput) bodyInput.value = "";
@@ -195,5 +294,63 @@ async function post() {
   } catch (error) {
     console.error("投稿に失敗しました:", error.message);
     alert("投稿に失敗しました。");
+  }
+}
+
+/**
+ * 投稿データを編集する関数
+ */
+export async function edit(id) {
+  const currentUser = auth.getCurrentUser();
+  if (!currentUser) {
+    alert("ログインしていません。再ログインしてください。");
+    return;
+  }
+
+  const titleInput = document.getElementById("editTitle");
+  const bodyInput = document.getElementById("editBody");
+
+  const title = titleInput?.value.trim();
+  const body = bodyInput?.value.trim();
+
+  if (!title || !body) {
+    alert("タイトルと本文を入力してください");
+    return;
+  }
+
+  try {
+    const users = await firestore.getDocuments("users", [
+      { field: "email", operator: "==", value: currentUser.email },
+    ]);
+
+    if (users.length === 0) {
+      alert("ユーザー情報が見つかりません。");
+      return;
+    }
+
+    const userDocumentId = users[0].id;
+
+    const editData = {
+      title,
+      body,
+      userId: `users/${userDocumentId}`,
+      updated: FirestoreWrapper.dateToTimestamp(new Date()),
+    };
+
+    await firestore.updateDocument("posts", id, editData);
+
+    hideEditModal();
+    clearEditModalFields();
+
+    const currentPage = document.body.getAttribute("data-page");
+
+    if (currentPage === "home") {
+      await loadPosts();
+    } else if (currentPage === "mypage") {
+      await loadUserPosts(userDocumentId);
+    }
+  } catch (error) {
+    console.error("編集に失敗しました:", error.message);
+    alert("編集に失敗しました。");
   }
 }
