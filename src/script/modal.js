@@ -2,6 +2,7 @@ import AuthWrapper from "../firebase-wrapper/auth.js";
 import FirestoreWrapper from "../firebase-wrapper/firestore.js";
 import { loadPosts } from "./home.js";
 import { loadUserPosts } from "./mypage.js";
+//import { deletePost } from "./postUtils.js";
 
 const auth = new AuthWrapper();
 const firestore = new FirestoreWrapper();
@@ -61,11 +62,50 @@ export async function loadPostModalHTML() {
   document.body.appendChild(modalContainer);
 }
 
+export async function deleteModalHTML() {
+  const modalContainer = document.createElement("div");
+  modalContainer.innerHTML = `
+    <div id="deletemodalBackdrop" class="hidden fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
+    <div id="deletemodalPanel" class="hidden fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
+          <div class="bg-white px-6 pb-6 pt-6 sm:p-8">
+            <div class="sm:flex sm:flex-col sm:items-start space-y-6">
+              <div class="w-full">
+                <label for="title" class="block text-base font-medium text-gray-900">Are you sure you want to permanently delete this Post?</label>
+                <div class="mt-2">
+                  
+                </div>
+              </div>
+              <div class="w-full">
+                
+                <div class="mt-2">
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
+            <button type="button" id="deleteModal" class="inline-flex w-full justify-center rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 sm:ml-3 sm:w-auto">
+              Delete
+            </button>
+            <button type="button" id="deletecancelModal" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modalContainer);
+}
+
 /**
  * モーダルを初期化する関数
  */
 export async function initializeModal() {
   await loadPostModalHTML();
+  await deleteModalHTML();
 
   // ログインユーザーの情報をモーダルに表示
   auth.onAuthStateChanged(async (user) => {
@@ -75,7 +115,11 @@ export async function initializeModal() {
       ]);
       if (users.length > 0) {
         const loggedInUser = users[0];
-        updateModalUserInfo(loggedInUser.name, loggedInUser.email, loggedInUser.icon);
+        updateModalUserInfo(
+          loggedInUser.name,
+          loggedInUser.email,
+          loggedInUser.icon,
+        );
       }
     }
   });
@@ -86,6 +130,14 @@ export async function initializeModal() {
 
   if (cancelModalButton) cancelModalButton.addEventListener("click", hideModal);
   if (postModalButton) postModalButton.addEventListener("click", post);
+
+  const deletecancelModalButton = document.getElementById("deletecancelModal");
+  const deleteModalButton = document.getElementById("deleteModal");
+
+  if (deletecancelModalButton)
+    deletecancelModalButton.addEventListener("click", deletehideModal);
+  if (deleteModalButton)
+    deleteModalButton.addEventListener("click", deletetweet());
 }
 
 /**
@@ -97,7 +149,8 @@ function updateModalUserInfo(name, email, icon) {
   const modalUserIcon = document.getElementById("modalUserIcon");
 
   if (modalUserName) modalUserName.textContent = name || "Unknown";
-  if (modalUserEmail) modalUserEmail.textContent = email || "unknown@example.com";
+  if (modalUserEmail)
+    modalUserEmail.textContent = email || "unknown@example.com";
   if (modalUserIcon) modalUserIcon.src = icon || "../asset/avatar.png";
 }
 
@@ -114,6 +167,16 @@ export function showModal() {
   }
 }
 
+export function showdeleteModal() {
+  const deletemodalBackdrop = document.getElementById("deletemodalBackdrop");
+  const deletemodalPanel = document.getElementById("deletemodalPanel");
+
+  if (deletemodalBackdrop && deletemodalPanel) {
+    deletemodalBackdrop.classList.remove("hidden");
+    deletemodalPanel.classList.remove("hidden");
+  }
+}
+
 /**
  * モーダルを非表示にする関数
  */
@@ -124,6 +187,18 @@ export function hideModal() {
   if (modalBackdrop && modalPanel) {
     modalBackdrop.classList.add("hidden");
     modalPanel.classList.add("hidden");
+  }
+
+  clearModalFields();
+}
+
+export function deletehideModal() {
+  const deletemodalBackdrop = document.getElementById("deletemodalBackdrop");
+  const deletemodalPanel = document.getElementById("deletemodalPanel");
+
+  if (deletemodalBackdrop && deletemodalPanel) {
+    deletemodalBackdrop.classList.add("hidden");
+    deletemodalPanel.classList.add("hidden");
   }
 
   clearModalFields();
@@ -170,6 +245,7 @@ async function post() {
       alert("ユーザー情報が見つかりません。");
       return;
     }
+    //if (users.length === 0) {alert("ユーザー情報が見つかりません。");return;}
 
     const userDocumentId = users[0].id;
 
@@ -197,3 +273,47 @@ async function post() {
     alert("投稿に失敗しました。");
   }
 }
+
+async function deletetweet() {
+  const currentUser = auth.getCurrentUser();
+  if (!currentUser) {
+    return;
+  }
+  try {
+      const users = await firestore.getDocuments("users", [
+        { field: "email", operator: "==", value: currentUser.email },
+      ]);
+
+      if (users.length === 0) {
+        alert("ユーザー情報が見つかりません。");
+        return;
+      }
+      //if (users.length === 0) {alert("ユーザー情報が見つかりません。");return;}
+
+      const userDocumentId = users[0].id;
+
+      const postData = {
+        title,
+        body,
+        userId: `users/${userDocumentId}`,
+        updated: FirestoreWrapper.dateToTimestamp(new Date()),
+      };
+
+      await firestore.deleteDocument("posts", postData);
+
+      deletehideModal();
+      clearModalFields();
+
+      const currentPage = document.body.getAttribute("data-page");
+
+      if (currentPage === "home") {
+        await loadPosts();
+      } else if (currentPage === "mypage") {
+        await loadUserPosts(userDocumentId);
+      }
+    } catch (error) {
+      console.error("投稿に失敗しました:", error.message);
+      alert("投稿に失敗しました。");
+    }
+  }
+
