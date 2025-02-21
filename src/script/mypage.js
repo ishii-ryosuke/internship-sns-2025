@@ -1,6 +1,7 @@
 import { createPostElement } from "./postUtils.js";
 import { getCurrentUser, onUserChange } from "../auth/authState.js";
 import FirestoreWrapper from "../firebase-wrapper/firestore.js";
+import { initializeModal, profileEditModal} from "./modal.js";
 
 // Firestore クラスのインスタンスを作成
 const firestore = new FirestoreWrapper();
@@ -77,7 +78,7 @@ async function loadUserProfile() {
     // 編集ボタンにイベントリスナーを設定
     const editButton = profileSection.querySelector("#editProfileButton");
     if (editButton) {
-      editButton.addEventListener("click", () => editProfile(userProfile.email));
+      editButton.addEventListener("click", () => editProfile(userProfile));
     }
 
     // ユーザードキュメントIDを返す
@@ -136,8 +137,8 @@ function clearPostsContainer() {
  * アカウントプロフィールを編集する関数
  * @param {string} email 編集対象のユーザーのメールアドレス
  */
-function editProfile(email) {
-  alert(`アカウントプロフィールの編集機能は未実装です。email: ${email}`);
+function editProfile(userprofile) {
+  profileEditModal(userprofile);
 }
 
 /**

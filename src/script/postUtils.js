@@ -1,4 +1,5 @@
 import FirestoreWrapper from "../firebase-wrapper/firestore.js";
+import { initializeModal, showEditModal} from "./modal.js";
 
 const firestore = new FirestoreWrapper();
 
@@ -7,7 +8,8 @@ const firestore = new FirestoreWrapper();
  * @param {string} postId - 編集する投稿の ID
  */
 export function editPost(postId) {
-  alert(`投稿の編集機能は未実装です。Post ID: ${postId}`);
+  showEditModal(postId);
+ 
 }
 
 /**

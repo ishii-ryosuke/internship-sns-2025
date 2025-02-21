@@ -1,14 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// TODO: 作成した Firebase プロジェクトの設定に置き換える
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDdx5Yn-k_q4WCz15IQgIlfQSwVztxkADk",
+  authDomain: "new-sns-project.firebaseapp.com",
+  projectId: "new-sns-project",
+  storageBucket: "new-sns-project.firebasestorage.app",
+  messagingSenderId: "142626252418",
+  appId: "1:142626252418:web:3fdbcdf31a9bd027c7769b"
 };
 
 // Firebase アプリの初期化
